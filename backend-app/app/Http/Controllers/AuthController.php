@@ -76,4 +76,23 @@ class AuthController extends Controller
             return response()->json(['error' => 'ログインに失敗しました'], 500);
         }
     }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json(['message' => 'ログアウトしました'], 200);
+    }
+
+    public function user(Request $request)
+    {
+        $user = $request->user();
+        return response()->json([
+            'message' => 'ユーザー情報取得成功',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ]
+        ], 200);
+    }
 }
