@@ -13,7 +13,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8|confirmed|regex:/\S/', // スペースのみ拒否
         ]);
     
         if ($validator->fails()) {
@@ -42,12 +42,12 @@ class AuthController extends Controller
             return response()->json(['error' => '登録に失敗しました'], 500);
         }
     }
-
+    
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
-            'password' => 'required|string',
+            'password' => 'required|string|regex:/\S/', // スペースのみ拒否
         ]);
     
         if ($validator->fails()) {
