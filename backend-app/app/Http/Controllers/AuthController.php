@@ -15,26 +15,31 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
+    
         try {
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
-
+    
             $token = $user->createToken('auth_token')->plainTextToken;
-
-            return response()->json(['token' => $token], 201);
-        } catch (\Exception $e) {
+    
             return response()->json([
-                'error' => '登録に失敗しました',
-                'message' => $e->getMessage()
-            ], 500);
+                'message' => '登録が成功しました',
+                'token' => $token,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ]
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => '登録に失敗しました'], 500);
         }
     }
 
