@@ -54,22 +54,26 @@ class AuthController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
     
-        $user = User::where('email', $request->email)->first();
+        try {
+            $user = User::where('email', $request->email)->first();
     
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['error' => '認証情報が無効です'], 401);
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                return response()->json(['error' => '認証情報が無効です'], 401);
+            }
+    
+            $token = $user->createToken('auth_token')->plainTextToken;
+    
+            return response()->json([
+                'message' => 'ログイン成功',
+                'token' => $token,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'ログインに失敗しました'], 500);
         }
-    
-        $token = $user->createToken('auth_token')->plainTextToken;
-    
-        return response()->json([
-            'message' => 'ログイン成功',
-            'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-            ]
-        ], 200);
     }
 }
